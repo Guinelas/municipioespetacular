@@ -1,18 +1,6 @@
-/* ==========================================================================
-   Município Y — app.js
-   O HTML tem tudo o que é fixo (menu, rodapé, freguesias, projetos, formulários).
-   O JavaScript trata apenas do que muda: dados, listas, filtros, sessão e formulários.
-
-   1. Base de dados simulada (localStorage)   5. Autenticação, conta e propostas
-   2. Utilitários                              6. Administração
-   3. Menu e cards                             7. Inicialização
-   4. Páginas públicas
-   ========================================================================== */
 'use strict';
 
-/* ==========================================================================
-   1. BASE DE DADOS SIMULADA
-   ========================================================================== */
+/* DB */
 const DB_KEY = 'municipioY_db_v1';
 const SESSION_KEY = 'municipioY_session';
 
@@ -39,7 +27,7 @@ const seedData = {
 const USER_ROLES = ['citizen', 'company', 'organizer'];
 const APPLICATION_STATUSES = ['Recebida', 'Em análise', 'Aprovada', 'Rejeitada'];
 
-/** localStorage pode falhar (modo privado, quota cheia): nunca deixar rebentar a página. */
+/** localStorage pode falhar */
 function storageGet(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -77,7 +65,7 @@ function saveDB() {
 
 let db = loadDB();
 
-/** Identificador único (Date.now() sozinho pode colidir em cliques rápidos). */
+/** Identificador único (Date.now() */
 let idSeed = 0;
 function newId() { return Date.now() * 1000 + (idSeed++ % 1000); }
 
@@ -87,10 +75,7 @@ function currentUser() {
 function startSession(u) {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: u.id, name: u.name, email: u.email, role: u.role }));
 }
-
-/* ==========================================================================
-   2. UTILITÁRIOS
-   ========================================================================== */
+/*u*/
 const $ = (id) => document.getElementById(id);
 
 const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -138,11 +123,7 @@ function callStatus(call) {
   return call.deadline && call.deadline < todayISO() ? 'Encerrado' : 'Aberto';
 }
 
-/* ==========================================================================
-   3. MENU E CARDS
-   O menu e o rodapé estão escritos no HTML de cada página.
-   Aqui só se atualiza o que depende da sessão.
-   ========================================================================== */
+/* atualização de menu cards */
 function updateNav() {
   const user = currentUser();
   const btn = $('nav-login-btn');
@@ -153,7 +134,7 @@ function updateNav() {
   if (user?.role === 'admin') $('nav-admin-link')?.classList.remove('d-none');
 }
 
-/** Cartão genérico. `item.tag` / `item.visual` / `item.meta` permitem personalizar sem hacks. */
+/** Cards */
 function createCard(item, type) {
   const isEvent = type === 'event';
   const isNews = type === 'news';
@@ -179,9 +160,7 @@ const emptyState = (text) => `<div class="col-12"><div class="empty-state">${tex
 const byDateDesc = (a, b) => b.date.localeCompare(a.date);
 const byDateAsc = (a, b) => a.date.localeCompare(b.date);
 
-/* ==========================================================================
-   4. PÁGINAS PÚBLICAS (listas que dependem dos dados)
-   ========================================================================== */
+/* páginas que dependem das listas */
 function renderHome() {
   const n = $('home-news');
   const e = $('home-events');
@@ -250,9 +229,7 @@ function renderCalls() {
   }).join('') || emptyState('Não existem concursos publicados.');
 }
 
-/* ==========================================================================
-   5. AUTENTICAÇÃO, CONTA E PROPOSTAS
-   ========================================================================== */
+/* iniciar sessao */
 function handleAuth() {
   const login = $('login-form');
   const register = $('register-form');
@@ -394,9 +371,7 @@ function handleEventSubmission() {
   });
 }
 
-/* ==========================================================================
-Parte de administração
-   ========================================================================== */
+/* Parte de administração */
 function renderAdmin() {
   const pending = db.proposals.filter(p => p.status === 'Pendente');
 
@@ -500,8 +475,7 @@ function handleAdmin() {
   });
 }
 
-/* ==========================================================================
-Arranque   ========================================================================== */
+/* Arranque */
 function renderPublic() {
   renderHome();
   renderNews();
